@@ -5,7 +5,7 @@ services:
       context: .
       target: mysql
     container_name: db-1
-    restart: always
+    restart: on-failure
     environment:
       # Vos credentials
       MYSQL_ROOT_PASSWORD: MySQLRootPassword
@@ -19,13 +19,7 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - local
-    # AJOUT ESSENTIEL : S'assurer que le serveur MySQL est PRÊT à répondre aux requêtes
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pMySQLRootPassword"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
- 
+    
   # 2. phpMyAdmin (Conserve le build: target: php)
   phpmyadmin:
     build:
@@ -33,45 +27,89 @@ services:
       target: php
     container_name: phpmyadmin-1
     restart: always
-    depends_on:
-      # MODIFICATION : Attend que la BDD soit Saine (healthy)
-      db:
-        condition: service_healthy
+  
     ports:
-      - "8080:80"
+      - "8080:80" 
     environment:
-      PMA_HOST: db
+      PMA_HOST: db 
       PMA_USER: MySQLUsername
       PMA_PASSWORD: MySQLUserPassword
     networks:
       - local
- 
-  # 3. WordPress (Conserve le build: target: wordpress)
+
+  
   wordpress:
     build:
       context: .
       target: wordpress
     container_name: wordpress-1
-    depends_on:
-      # MODIFICATION : Attend que la BDD soit Saine (healthy)
-      db:
-        condition: service_healthy
     restart: always
-    ports:
-      - "80:80"
+    # Ne pas publier de port: le reverse proxy écoute en 80/443
+    expose:
+      - "80"
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: MySQLUsername
       WORDPRESS_DB_PASSWORD: MySQLUserPassword
       WORDPRESS_DB_NAME: MySQLDatabaseName
+      VIRTUAL_HOST: wordpress-ynov.duckdns.org
+      LETSENCRYPT_HOST: wordpress-ynov.duckdns.org
+      # LETSENCRYPT_EMAIL ne sert pas ici; on le met dans acme-companion
+      # Le conteneur WP écoute sur 80:
+      VIRTUAL_PORT: 80
     networks:
       - local
     volumes:
       - "./:/var/www/html"
-      
+ 
+  nginx-proxy:
+    container_name: nginx-reverse-proxy
+    image: nginxproxy/nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"    # IMPORTANT pour HTTP-01
+      - "443:443"
+    networks:
+      - local
+    environment:
+      # Désactiver IPv6 côté nginx-proxy (optionnel)
+      DISABLE_IPV6: "true"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - vhosts:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs:ro
+ 
+  nginx-proxy-acme:
+    container_name: nginx-proxy-acme
+    image: nginxproxy/acme-companion:latest
+    restart: unless-stopped
+    depends_on:
+      - nginx-proxy
+    environment:
+      NGINX_PROXY_CONTAINER: nginx-reverse-proxy
+      # Email pour Let's Encrypt:
+      DEFAULT_EMAIL: mateo.parny@ynov.com
+      # CA de staging (garde-le pour tester; enlève cette ligne pour prod)
+      ACME_CA_URI: https://acme-staging-v02.api.letsencrypt.org/directory
+    networks:
+      - local
+    volumes:
+      # DOIT aussi voir le docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Monter les mêmes volumes que le proxy
+      - vhosts:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs
+      - acme:/etc/acme.sh
 # Définition des Volumes et Réseaux
 volumes:
   mysql_data: {}
+  html: {}
+  acme: {}
+  certs: {}
+  vhosts: {}
+
 networks:
-  local:
+  local: 
     driver: bridge
