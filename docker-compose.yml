@@ -1,0 +1,77 @@
+services:
+  # 1. Base de Données (Conserve le build: target: mysql)
+  db:
+    build:
+      context: .
+      target: mysql
+    container_name: db-1
+    restart: always
+    environment:
+      # Vos credentials
+      MYSQL_ROOT_PASSWORD: MySQLRootPassword
+      MYSQL_DATABASE: MySQLDatabaseName
+      MYSQL_USER: MySQLUsername
+      MYSQL_PASSWORD: MySQLUserPassword
+      # Variables conservées selon votre demande
+      MYSQL_ALLOW_EMPTY_PASSWORD: root
+      MYSQL_RANDOM_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - local
+    # AJOUT ESSENTIEL : S'assurer que le serveur MySQL est PRÊT à répondre aux requêtes
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pMySQLRootPassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+ 
+  # 2. phpMyAdmin (Conserve le build: target: php)
+  phpmyadmin:
+    build:
+      context: .
+      target: php
+    container_name: phpmyadmin-1
+    restart: always
+    depends_on:
+      # MODIFICATION : Attend que la BDD soit Saine (healthy)
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: MySQLUsername
+      PMA_PASSWORD: MySQLUserPassword
+    networks:
+      - local
+ 
+  # 3. WordPress (Conserve le build: target: wordpress)
+  wordpress:
+    build:
+      context: .
+      target: wordpress
+    container_name: wordpress-1
+    depends_on:
+      # MODIFICATION : Attend que la BDD soit Saine (healthy)
+      db:
+        condition: service_healthy
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: MySQLUsername
+      WORDPRESS_DB_PASSWORD: MySQLUserPassword
+      WORDPRESS_DB_NAME: MySQLDatabaseName
+    networks:
+      - local
+    volumes:
+      - "./:/var/www/html"
+      
+# Définition des Volumes et Réseaux
+volumes:
+  mysql_data: {}
+networks:
+  local:
+    driver: bridge
