@@ -1,3 +1,3 @@
-FROM mariadb:10.11 AS mysql
-FROM wordpress:latest AS wordpress
-FROM phpmyadmin/phpmyadmin:latest AS php
+FROM loicynov/docker-mariadb:latest AS mysql
+FROM loicynov/wordpress:latest AS wordpress
+FROM loicynov/phpmyadmin:latest AS php
