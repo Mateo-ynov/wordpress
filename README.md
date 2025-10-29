@@ -69,9 +69,9 @@ $ docker compose ps
 
 ## Auteurs
 
-Loïc LAMBERT
-Bastien DURCHON
-Matéo PARNY
+Loïc LAMBERT  
+Bastien DURCHON  
+Matéo PARNY  
 M2 INFRA Ynov
- plus d'informations
+
 
