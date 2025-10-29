@@ -10,7 +10,7 @@ Il permet de :
   - Utiliser Dockerfile + Docker Compose (multi-services)  
   - Déployer l'application sur une VM Cloud  
   - Exposer l'application sur Internet via un reverse proxy  
-  - Ajouter un certificat SSL/TLS Let’s Encrypt automatique  
+  - Ajouter un certificat SSL/TLS **Let’s Encrypt** automatique  
   - Automatiser la configuration via des variables `.env`  
   - Héberger la base de données de manière persistante
     
@@ -27,8 +27,8 @@ L’architecture se compose de **3 services Docker** :
 | phpMyAdmin | phpmyadmin:latest | Interface de gestion SQL |
 
 - Réseau Docker interne 'local'
-- Reverse proxy Nginx pour l'exposition publique
-- Certificats automatiques Let's Encrypt
+- Reverse proxy **Nginx** pour l'exposition publique
+- Certificats automatiques **Let's Encrypt**
 
 ```mermaid
 graph TD;
@@ -54,7 +54,7 @@ graph TD;
   - docker-compose.yml -> Déploiement multi-containers
   - .env -> Variables d'environnement
 
-Ce sont les 3 ressources nécessaires pour reproduire le déploiement.
+Ce sont les **3 ressources** nécessaires pour reproduire le déploiement.
 
 ## Déploiement
 
@@ -88,13 +88,13 @@ docker compose ps
 ```
 ## Sécurisation et Reverse Proxy
 
-Le conteneur WordPress n’est pas exposé directement sur Internet.
+Le conteneur WordPress **n’est pas exposé directement** sur Internet.
 
 Le reverse proxy Nginx :
   - écoute sur les ports 80 et 443
   - termine les connexions HTTPS
   - génère automatiquement la configuration Nginx
-  - obtient les certificats via Let’s Encrypt
+  - obtient les certificats via **Let’s Encrypt**
   - route les requêtes selon le `Host Header`
 
 Variables définies dans le `.env` :
@@ -173,7 +173,7 @@ docker image prune -f
   - Ajouter un réseau “frontend” / “backend” pour isoler les flux
   - Ajouter un pipeline CI/CD GitHub Actions
   - Ajouter un cache Redis pour WordPress
-  - Déployer avec Ansible pour automatiser le provisionnement de la VM
+  - Déployer avec **Ansible** pour automatiser le provisionnement de la VM
 
 ## Auteurs
 
