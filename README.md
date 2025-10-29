@@ -30,20 +30,20 @@ L’architecture se compose de **3 services Docker** :
 
 ```mermaid
 graph TD;
-    Client((🌍 Client Web))
+    Client((Client Web))
     
-    subgraph PROXY [Reverse Proxy + HTTPS]
-        Proxy[Nginx Proxy + Let's Encrypt]
+    subgraph ReverseProxy
+        Proxy[Nginx Proxy + LetsEncrypt]
     end
     
-    subgraph APP [Application Web (Docker Compose)]
-        WP[WordPress Container] --> DB[(MariaDB Container)]
-        PMA[phpMyAdmin Container] --> DB
+    subgraph AppStack
+        WP[WordPress] --> DB[(MariaDB)]
+        PMA[phpMyAdmin] --> DB
     end
     
     Client -->|HTTPS| Proxy
-    Proxy -->|HTTP interne| WP
-    Proxy -->|HTTP interne| PMA
+    Proxy -->|HTTP| WP
+    Proxy -->|HTTP| PMA
 ```
 
 ### Contenu du dépôt
