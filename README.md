@@ -36,7 +36,7 @@ graph TD;
         Proxy[Nginx Proxy + LetsEncrypt]
     end
     
-    subgraph AppStack
+    subgraph App Web - Docker Compose
         WP[WordPress] --> DB[(MariaDB)]
         PMA[phpMyAdmin] --> DB
     end
@@ -85,11 +85,23 @@ $ docker compose up -d
 $ docker compose ps
 ```
 
+## Tests de validation
+
+### Test reverse proxy
+
+```bash
+$ curl -I -H "Host: wordpress-ynov.duckdns.org" http://127.0.0.1
+```
+
+### Test du certificat
+
+```bash
+$ curl -v https://wordpress-ynov.duckdns.org
+```
+
 ## Auteurs
 
 Loïc LAMBERT  
 Bastien DURCHON  
 Matéo PARNY  
 M2 INFRA Ynov
-
-
