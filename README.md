@@ -167,9 +167,17 @@ docker image prune -f
 | Voir les logs      | `docker compose logs -f <service>`    |
 | Supprimer tout     | `docker system prune -a --volumes -f` |
 
+## Améliorations possibles 
+
+  - Séparer chaque service dans son propre Dockerfile
+  - Ajouter un réseau “frontend” / “backend” pour isoler les flux
+  - Ajouter un pipeline CI/CD GitHub Actions
+  - Ajouter un cache Redis pour WordPress
+  - Déployer avec Ansible pour automatiser le provisionnement de la VM
+
 ## Auteurs
 
 Loïc LAMBERT  
 Bastien DURCHON  
 Matéo PARNY  
-M2 INFRA Ynov
+**_M2 INFRA - Ynov Campus_**
