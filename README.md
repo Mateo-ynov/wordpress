@@ -14,7 +14,7 @@ Il permet de :
     
 => Toutes les étapes sont reproductibles grâce aux fichiers présents sur GitHub.
 
-### Architecture technique
+## Architecture technique
 
 L’architecture se compose de **3 services Docker** :
 
@@ -46,7 +46,7 @@ graph TD;
     Proxy -->|HTTP| PMA
 ```
 
-### Contenu du dépôt
+## Contenu du dépôt
 
   - Dockerfile -> Multi-usage : WordPress / MariaDB / phpMyAdmin
   - docker-compose.yml -> Déploiement multi-containers
