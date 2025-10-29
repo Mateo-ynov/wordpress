@@ -45,23 +45,27 @@ Déploiement sur un VM
 ```bash
 $ curl -fsSL https://get.docker.com | sh
 $ sudo usermod -aG docker $USER
-$ newgrp docker```
+$ newgrp docker
+```
 
 ### Cloner le dépôt
 
 ```bash
-$ git clone https://github.com/Mateo-ynov/wordpress.git```
+$ git clone https://github.com/Mateo-ynov/wordpress.git
+```
 
 ### Lancer les conteneurs
 
 ```bash
 $ docker compose build
-$ docker compose up -d```
+$ docker compose up -d
+```
 
 ### Vérifier le lancement
 
 ```bash
-$ docker compose ps```
+$ docker compose ps
+```
 
 ## Auteurs
 
