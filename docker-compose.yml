@@ -1,5 +1,5 @@
 services:
-  # 1. Base de Données (Conserve le build: target: mysql)
+  # 1. Base de Données
   db:
     build:
       context: .
@@ -7,12 +7,10 @@ services:
     container_name: db-1
     restart: on-failure
     environment:
-      # Vos credentials
       MYSQL_ROOT_PASSWORD: MySQLRootPassword
       MYSQL_DATABASE: MySQLDatabaseName
       MYSQL_USER: MySQLUsername
       MYSQL_PASSWORD: MySQLUserPassword
-      # Variables conservées selon votre demande
       MYSQL_ALLOW_EMPTY_PASSWORD: root
       MYSQL_RANDOM_ROOT_PASSWORD: root
     volumes:
@@ -20,7 +18,7 @@ services:
     networks:
       - local
     
-  # 2. phpMyAdmin (Conserve le build: target: php)
+  # 2. phpMyAdmin
   phpmyadmin:
     build:
       context: .
@@ -37,14 +35,13 @@ services:
     networks:
       - local
 
-  
+  # 3. WordPress  
   wordpress:
     build:
       context: .
       target: wordpress
     container_name: wordpress-1
     restart: always
-    # Ne pas publier de port: le reverse proxy écoute en 80/443
     expose:
       - "80"
     environment:
@@ -67,12 +64,12 @@ services:
     image: nginxproxy/nginx-proxy
     restart: unless-stopped
     ports:
-      - "80:80"    # IMPORTANT pour HTTP-01
+      - "80:80"
       - "443:443"
     networks:
       - local
     environment:
-      # Désactiver IPv6 côté nginx-proxy (optionnel)
+      # Désactiver IPv6 côté nginx-proxy
       DISABLE_IPV6: "true"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
@@ -90,19 +87,17 @@ services:
       NGINX_PROXY_CONTAINER: nginx-reverse-proxy
       # Email pour Let's Encrypt:
       DEFAULT_EMAIL: mateo.parny@ynov.com
-      # CA de staging (garde-le pour tester; enlève cette ligne pour prod)
+      # CA de staging
       ACME_CA_URI: https://acme-staging-v02.api.letsencrypt.org/directory
     networks:
       - local
     volumes:
-      # DOIT aussi voir le docker.sock
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      # Monter les mêmes volumes que le proxy
       - vhosts:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - certs:/etc/nginx/certs
       - acme:/etc/acme.sh
-# Définition des Volumes et Réseaux
+
 volumes:
   mysql_data: {}
   html: {}
