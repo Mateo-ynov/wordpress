@@ -58,7 +58,7 @@ Ce sont les **3 ressources** nécessaires pour reproduire le déploiement.
 
 ## Déploiement
 
-Déploiement sur un VM
+Déploiement sur une VM
 
 ### Installer Docker
 
