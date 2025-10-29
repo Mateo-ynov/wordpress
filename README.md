@@ -1,4 +1,6 @@
-# Projet Conteneurisation v1
+# Projet Conteneurisation v1 - WordPress / MariaDB / phpMyAdmin
+
+Démo publique : https://wordpress-ynov.duckdns.org
 
 ## Objectifs du projet
 
@@ -61,43 +63,109 @@ Déploiement sur un VM
 ### Installer Docker
 
 ```bash
-$ curl -fsSL https://get.docker.com | sh
-$ sudo usermod -aG docker $USER
-$ newgrp docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
 ```
 
 ### Cloner le dépôt
 
 ```bash
-$ git clone https://github.com/Mateo-ynov/wordpress.git
+git clone https://github.com/Mateo-ynov/wordpress.git
 ```
 
 ### Lancer les conteneurs
 
 ```bash
-$ docker compose build
-$ docker compose up -d
+docker compose build
+docker compose up -d
 ```
 
 ### Vérifier le lancement
 
 ```bash
-$ docker compose ps
+docker compose ps
 ```
+## Sécurisation et Reverse Proxy
+
+Le conteneur WordPress n’est pas exposé directement sur Internet.
+
+Le reverse proxy Nginx :
+  - écoute sur les ports 80 et 443
+  - termine les connexions HTTPS
+  - génère automatiquement la configuration Nginx
+  - obtient les certificats via Let’s Encrypt
+  - route les requêtes selon le `Host Header`
+
+Variables définies dans le `.env` :
+```bash
+VIRTUAL_HOST=wordpress-ynov.duckdns.org
+LETSENCRYPT_HOST=wordpress-ynov.duckdns.org
+LETSENCRYPT_EMAIL=mateo.parny@ynov.com
+```
+
+## Persistance des données
+
+| Volume Docker     | Rôle                                          |
+| ----------------- | --------------------------------------------- |
+| `mysql_data`      | Sauvegarde de la base MariaDB                 |
+| `./` (bind mount) | Fichiers WordPress (uploads, thèmes, plugins) |
+
+=> Ces volumes garantissent que les données restent disponibles après un redémarrage ou un redeploiement.
 
 ## Tests de validation
 
-### Test reverse proxy
-
+### Vérifier les services
 ```bash
-$ curl -I -H "Host: wordpress-ynov.duckdns.org" http://127.0.0.1
+docker compose ps
 ```
 
-### Test du certificat
+### Tester la connexion à la base
 
 ```bash
-$ curl -v https://wordpress-ynov.duckdns.org
+docker exec -it db-1 mysql -uroot -pMySQLRootPassword -e "SHOW DATABASES;"
 ```
+
+### Tester reverse proxy
+
+```bash
+curl -I -H "Host: wordpress-ynov.duckdns.org" http://127.0.0.1
+```
+
+### Vérifier le certificat TLS
+
+```bash
+curl -v https://wordpress-ynov.duckdns.org
+```
+
+## Démontage / Arrêt du projet
+
+### Arrêter les conteneurs sans tout supprimer
+
+```bash
+docker compose down
+```
+
+### Supprimer les conteneurs et les volumes associés
+
+```bash
+docker compose down -v
+```
+
+### Nettoyer les images inutilisées
+
+```bash
+docker image prune -f
+```
+
+## Cycle de vie Docker
+
+| Action             | Commande                              |
+| ------------------ | ------------------------------------- |
+| Démarrer le projet | `docker compose up -d`                |
+| Arrêter le projet  | `docker compose down`                 |
+| Voir les logs      | `docker compose logs -f <service>`    |
+| Supprimer tout     | `docker system prune -a --volumes -f` |
 
 ## Auteurs
 
