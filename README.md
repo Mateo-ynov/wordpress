@@ -1,58 +1,90 @@
 # Projet Conteneurisation v1
 
-Projet d'étude 
+## Objectifs du projet
 
-## Pour commencer
+Ce projet a été réalisé dans le cadre du module d’Orchestration de Conteneurs.  
+Il permet de :
+  - Conteneuriser une application Web complète  
+  - Utiliser Dockerfile + Docker Compose (multi-services)  
+  - Déployer l'application sur une VM Cloud  
+  - Exposer l'application sur Internet via un reverse proxy  
+  - Ajouter un certificat SSL/TLS Let’s Encrypt automatique  
+  - Automatiser la configuration via des variables `.env`  
+  - Héberger la base de données de manière persistante
+    
+=> Toutes les étapes sont reproductibles grâce aux fichiers présents sur GitHub.
 
-Entrez ici les instructions pour bien débuter avec votre projet...
+### Architecture technique
 
-### Pré-requis
+L’architecture se compose de **3 services Docker** :
 
-- Installation de Docker et de ses dépendances : `` ``
-- Installation de Git : 
+| Service | Image | Rôle |
+|--------|------|-----|
+| MariaDB | mariadb:10.11 | Stockage des données WordPress |
+| WordPress | wordpress:latest | Serveur Web + application PHP |
+| phpMyAdmin | phpmyadmin:latest | Interface de gestion SQL |
 
-### Installation
+- Réseau Docker interne 'local'
+- Reverse proxy Nginx pour l'exposition publique
+- Certificats automatiques Let's Encrypt
 
-Tirer le repo git : Executez la commande ``git clone `` 
-SSH-Keygen
-SSH root@VM
+```mermaid
+graph TD;
+    Client((🌍 Client Web))
+    
+    subgraph PROXY [Reverse Proxy + HTTPS]
+        Proxy[Nginx Proxy + Let's Encrypt]
+    end
+    
+    subgraph APP [Application Web (Docker Compose)]
+        WP[WordPress Container] --> DB[(MariaDB Container)]
+        PMA[phpMyAdmin Container] --> DB
+    end
+    
+    Client -->|HTTPS| Proxy
+    Proxy -->|HTTP interne| WP
+    Proxy -->|HTTP interne| PMA
 
-Docker compose Build
-Docker compose up -d
+### Contenu du dépôt
 
-## Démarrage
+  - Dockerfile -> Multi-usage : WordPress / MariaDB / phpMyAdmin
+  - docker-compose.yml -> Déploiement multi-containers
+  - .env -> Variables d'environnement
 
-Dites comment faire pour lancer votre projet
+Ce sont les 3 ressources nécessaires pour reproduire le déploiement.
 
-## Fabriqué avec
+## Déploiement
 
-Entrez les programmes/logiciels/ressources que vous avez utilisé pour développer votre projet
+Déploiement sur un VM
 
-_exemples :_
-* [Materialize.css](http://materializecss.com) - Framework CSS (front-end)
-* [Atom](https://atom.io/) - Editeur de textes
+### Installer Docker
 
-## Contributing
+``bash
+$ curl -fsSL https://get.docker.com | sh
+$ sudo usermod -aG docker $USER
+$ newgrp docker
 
-Si vous souhaitez contribuer, lisez le fichier [CONTRIBUTING.md](https://example.org) pour savoir comment le faire.
+### Cloner le dépôt
 
-## Versions
-Listez les versions ici 
-_exemple :_
-**Dernière version stable :** 5.0
-**Dernière version :** 5.1
-Liste des versions : [Cliquer pour afficher](https://github.com/your/project-name/tags)
-_(pour le lien mettez simplement l'URL de votre projets suivi de ``/tags``)_
+``bash
+$ git clone https://github.com/Mateo-ynov/wordpress.git
+
+### Lancer les conteneurs
+
+``bash
+$ docker compose build
+$ docker compose up -d
+
+### Vérifier le lancement
+
+``bash
+$ docker compose ps
 
 ## Auteurs
-Listez le(s) auteur(s) du projet ici !
-* **Jhon doe** _alias_ [@outout14](https://github.com/outout14)
 
-Lisez la liste des [contributeurs](https://github.com/your/project/contributors) pour voir qui à aidé au projet !
-
-_(pour le lien mettez simplement l'URL de votre projet suivi de ``/contirubors``)_
-
-## License
-
-Ce projet est sous licence ``exemple: WTFTPL`` - voir le fichier [LICENSE.md](LICENSE.md) pour plus d'informations
+Loïc LAMBERT
+Bastien DURCHON
+Matéo PARNY
+M2 INFRA Ynov
+ plus d'informations
 
