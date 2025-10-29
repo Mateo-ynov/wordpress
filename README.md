@@ -28,23 +28,6 @@ L’architecture se compose de **3 services Docker** :
 - Reverse proxy Nginx pour l'exposition publique
 - Certificats automatiques Let's Encrypt
 
-```mermaid
-graph TD;
-    Client((🌍 Client Web))
-    
-    subgraph PROXY [Reverse Proxy + HTTPS]
-        Proxy[Nginx Proxy + Let's Encrypt]
-    end
-    
-    subgraph APP [Application Web (Docker Compose)]
-        WP[WordPress Container] --> DB[(MariaDB Container)]
-        PMA[phpMyAdmin Container] --> DB
-    end
-    
-    Client -->|HTTPS| Proxy
-    Proxy -->|HTTP interne| WP
-    Proxy -->|HTTP interne| PMA
-
 ### Contenu du dépôt
 
   - Dockerfile -> Multi-usage : WordPress / MariaDB / phpMyAdmin
