@@ -42,26 +42,26 @@ Déploiement sur un VM
 
 ### Installer Docker
 
-``bash
+```bash
 $ curl -fsSL https://get.docker.com | sh
 $ sudo usermod -aG docker $USER
-$ newgrp docker
+$ newgrp docker```
 
 ### Cloner le dépôt
 
-``bash
-$ git clone https://github.com/Mateo-ynov/wordpress.git
+```bash
+$ git clone https://github.com/Mateo-ynov/wordpress.git```
 
 ### Lancer les conteneurs
 
-``bash
+```bash
 $ docker compose build
-$ docker compose up -d
+$ docker compose up -d```
 
 ### Vérifier le lancement
 
-``bash
-$ docker compose ps
+```bash
+$ docker compose ps```
 
 ## Auteurs
 
